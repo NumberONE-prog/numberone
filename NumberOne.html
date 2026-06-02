@@ -433,6 +433,7 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
         <a href="#" onclick="abrirAdmin('banners');return false"><strong>Gerenciar Banners</strong><span>Adicione imagens ao slider</span></a>
         <a href="#" onclick="abrirAdmin('temas');return false"><strong>Temas</strong><span>Personalize cores e fontes</span></a>
         <a href="#" onclick="abrirAdmin('conexao');return false"><strong>🔌 Conexão</strong><span>URL do proxy / ngrok</span></a>
+        <a href="#" onclick="abrirAdmin('display');return false"><strong>📱 Display</strong><span>Frases e imagem de fundo</span></a>
       </div>
     </div>
   </div>
@@ -472,6 +473,13 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
 <div id="displayPanel" style="display:none;position:fixed;inset:0;z-index:9999;
   background:#000;flex-direction:column;overflow:hidden;user-select:none">
 
+  <!-- Imagem de fundo -->
+  <div id="dpBgImg" style="position:absolute;inset:0;z-index:0;background-size:cover;
+    background-position:center;background-repeat:no-repeat;opacity:.35"></div>
+
+  <!-- Overlay escuro sobre a imagem -->
+  <div style="position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.8))"></div>
+
   <!-- Botão fechar -->
   <button onclick="fecharDisplay()"
     style="position:absolute;top:12px;right:12px;z-index:10;background:rgba(255,255,255,.1);
@@ -479,6 +487,15 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
     cursor:pointer;font-size:.75rem;font-family:var(--fhead);letter-spacing:1px">
     ✕ FECHAR
   </button>
+
+  <!-- Botão configurar imagem -->
+  <button onclick="dpConfigurarImagem()"
+    style="position:absolute;top:12px;left:12px;z-index:10;background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:8px;padding:6px 10px;
+    cursor:pointer;font-size:.65rem;font-family:var(--fhead);letter-spacing:1px">
+    🖼️
+  </button>
+  <input type="file" id="dpImgInput" accept="image/*" style="display:none" onchange="dpCarregarImagem(this)">
 
   <!-- FLASH DE PEDRA (aparece 1s quando entra pedra nova) -->
   <div id="dpFlash" style="display:none;position:absolute;inset:0;z-index:5;
@@ -488,6 +505,43 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
     <div id="dpFlashLabel" style="font-family:var(--fhead);font-size:6vw;letter-spacing:4px;
       opacity:.8"></div>
     <div id="dpFlashDist" style="font-family:var(--fmono);font-size:4vw;opacity:.6;margin-top:8px"></div>
+  </div>
+
+  <!-- FRASES MOTIVACIONAIS (aparecem após 4s do flash, ficam até próxima pedra) -->
+  <div id="dpFrases" style="display:none;position:absolute;inset:0;z-index:4;
+    align-items:center;justify-content:center;overflow:hidden">
+    <div id="dpFraseTicker" style="position:absolute;white-space:nowrap;
+      font-family:var(--fhead);font-size:6.5vw;font-weight:700;color:#fff;
+      text-shadow:0 2px 20px rgba(0,0,0,.8);letter-spacing:3px;
+      animation:dpSlide 12s linear infinite"></div>
+  </div>
+
+  <!-- PAINEL STATS (aparece logo após o flash por 4s) -->
+  <div id="dpStats4s" style="display:none;position:absolute;inset:0;z-index:4;
+    align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px">
+    <div style="display:flex;gap:20px;align-items:center">
+      <div id="dpS4Bola" style="width:18vw;height:18vw;border-radius:50%;display:flex;
+        align-items:center;justify-content:center;font-family:var(--fmono);
+        font-size:8vw;font-weight:900;background:#333"></div>
+      <div>
+        <div id="dpS4Label" style="font-family:var(--fhead);font-size:5vw;letter-spacing:3px;color:#fff"></div>
+        <div id="dpS4Dist" style="font-family:var(--fmono);font-size:4vw;color:#f0a500;margin-top:4px"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px">
+      <div style="text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.4);font-family:var(--fhead)">PEDRAS</div>
+        <div id="dpS4Pedras" style="font-family:var(--fmono);font-size:7vw;color:#fff;font-weight:700">0</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.4);font-family:var(--fhead)">BRANCOS</div>
+        <div id="dpS4Brancos" style="font-family:var(--fmono);font-size:7vw;color:#d4d4d8;font-weight:700">0</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.4);font-family:var(--fhead)">DIST ATUAL</div>
+        <div id="dpS4DistAt" style="font-family:var(--fmono);font-size:7vw;color:#f0a500;font-weight:700">—</div>
+      </div>
+    </div>
   </div>
 
   <!-- PAINEL IDLE — stats rolando -->
@@ -1418,6 +1472,7 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
       <button class="ctab active" id="atab-banners" onclick="switchAdminTab('banners')">🖼️ Banners</button>
       <button class="ctab"        id="atab-temas"   onclick="switchAdminTab('temas')">🎨 Temas</button>
       <button class="ctab"        id="atab-conexao" onclick="switchAdminTab('conexao')">🔌 Conexão</button>
+      <button class="ctab"        id="atab-display" onclick="switchAdminTab('display')">📱 Display</button>
       <button class="btn pb-cn" style="margin-left:auto" onclick="closeAll()">✕ Fechar</button>
     </div>
 
@@ -1526,6 +1581,57 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
           🔍 Testar Conexão
         </button>
         <div id="cfgProxyTeste" style="margin-top:6px;font-size:.7rem;text-align:center"></div>
+      </div>
+    </div>
+
+    <!-- DISPLAY -->
+    <div id="apainel-display" style="display:none">
+      <h3 style="font-family:var(--fhead);color:var(--gold);font-size:1rem;margin-bottom:14px;letter-spacing:1px">📱 Configuração do Display</h3>
+
+      <!-- Imagem de fundo -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:.72rem;color:var(--gold);font-family:var(--fhead);letter-spacing:1px;margin-bottom:10px">🖼️ IMAGEM DE FUNDO</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="dpBgPreview" style="width:80px;height:60px;border-radius:8px;border:1px solid var(--border);
+            background:var(--bg2);display:flex;align-items:center;justify-content:center;
+            font-size:.65rem;color:var(--muted);flex-shrink:0;background-size:cover;background-position:center">
+            sem imagem
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <input type="file" id="dpBgFile" accept="image/*" style="display:none" onchange="dpAdminCarregarImagem(this)">
+            <button class="btn pb-sv" onclick="document.getElementById('dpBgFile').click()" style="padding:7px;font-size:.72rem">
+              📁 Escolher Imagem
+            </button>
+            <button class="btn pb-cn" onclick="dpRemoverImagem()" style="padding:5px;font-size:.68rem">
+              🗑 Remover
+            </button>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label style="font-size:.68rem;color:var(--muted)">Opacidade da imagem:</label>
+          <input type="range" id="dpBgOpacity" min="10" max="80" value="35"
+            oninput="dpAtualizarOpacidade(this.value)"
+            style="width:100%;margin-top:4px">
+          <span id="dpBgOpacityVal" style="font-size:.68rem;color:var(--muted)">35%</span>
+        </div>
+      </div>
+
+      <!-- Frases motivacionais -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:.72rem;color:var(--gold);font-family:var(--fhead);letter-spacing:1px;margin-bottom:8px">✦ FRASES MOTIVACIONAIS</div>
+        <p style="font-size:.68rem;color:var(--muted);margin-bottom:8px;line-height:1.5">
+          Uma frase por linha. Elas passam da direita pra esquerda durante a operação.
+        </p>
+        <textarea id="dpFrasesInput"
+          placeholder="Opere com método — nunca com emoção&#10;Paciência é a arma do profissional&#10;Controle a banca — controle o jogo&#10;Siga o plano, ignore o ruído"
+          style="width:100%;height:160px;background:var(--bg2);border:1px solid var(--border);
+          border-radius:7px;color:var(--text);font-size:.78rem;padding:8px;
+          box-sizing:border-box;resize:vertical;outline:none;font-family:var(--fmono);line-height:1.6"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn pb-sv" onclick="dpSalvarFrases()" style="flex:1;padding:8px">💾 Salvar Frases</button>
+          <button class="btn pb-cn" onclick="dpResetarFrases()" style="padding:8px;font-size:.7rem">↺ Padrão</button>
+        </div>
+        <div id="dpFrasesStatus" style="font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center"></div>
       </div>
     </div>
 
@@ -1706,6 +1812,8 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
 <style>
 @keyframes ticker { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
 @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes dpSlide { 0%{transform:translateX(110vw)} 100%{transform:translateX(-110vw)} }
+@keyframes dpFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
 @keyframes bellShake { 0%,100%{transform:rotate(0)} 25%{transform:rotate(15deg)} 75%{transform:rotate(-15deg)} }
 .zen-music-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;
   background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:.15s}
@@ -4507,13 +4615,98 @@ function abrirAdmin(aba) {
 }
 
 function switchAdminTab(aba) {
-  ['banners','temas','conexao'].forEach(t=>{
-    document.getElementById('apainel-'+t).style.display=t===aba?'block':'none';
-    document.getElementById('atab-'+t).classList.toggle('active',t===aba);
+  ['banners','temas','conexao','display'].forEach(function(t){
+    document.getElementById('apainel-'+t).style.display = t===aba ? 'block' : 'none';
+    document.getElementById('atab-'+t).classList.toggle('active', t===aba);
   });
   if(aba==='banners')  renderBanners();
   if(aba==='temas')    carregarCoresTema();
   if(aba==='conexao')  carregarConfigProxy();
+  if(aba==='display')  dpCarregarPainelAdmin();
+}
+
+function dpCarregarPainelAdmin() {
+  var url = localStorage.getItem('dp_bg_img');
+  var prev = document.getElementById('dpBgPreview');
+  if(url && prev){ prev.style.backgroundImage='url('+url+')'; prev.textContent=''; }
+  var op = localStorage.getItem('dp_bg_opacity') || '35';
+  document.getElementById('dpBgOpacity').value = op;
+  document.getElementById('dpBgOpacityVal').textContent = op + '%';
+  var frases = dpCarregarFrasesLocal();
+  document.getElementById('dpFrasesInput').value = frases.join('\n');
+}
+
+function dpAdminCarregarImagem(input) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var url = e.target.result;
+    localStorage.setItem('dp_bg_img', url);
+    var prev = document.getElementById('dpBgPreview');
+    prev.style.backgroundImage = 'url('+url+')';
+    prev.textContent = '';
+    dpAplicarImagem(url);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function dpRemoverImagem() {
+  localStorage.removeItem('dp_bg_img');
+  var prev = document.getElementById('dpBgPreview');
+  prev.style.backgroundImage = '';
+  prev.textContent = 'sem imagem';
+  var bg = document.getElementById('dpBgImg');
+  if(bg) bg.style.backgroundImage = '';
+}
+
+function dpAtualizarOpacidade(val) {
+  document.getElementById('dpBgOpacityVal').textContent = val + '%';
+  localStorage.setItem('dp_bg_opacity', val);
+  var bg = document.getElementById('dpBgImg');
+  if(bg) bg.style.opacity = val / 100;
+}
+
+function dpCarregarFrasesLocal() {
+  var saved = localStorage.getItem('dp_frases');
+  if(saved){ try{ var arr=JSON.parse(saved); if(arr&&arr.length) return arr; }catch(e){} }
+  return DP_FRASES;
+}
+
+function dpSalvarFrases() {
+  var txt = document.getElementById('dpFrasesInput').value.trim();
+  var arr = txt.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>0; });
+  if(!arr.length){ alert('Digite pelo menos uma frase!'); return; }
+  localStorage.setItem('dp_frases', JSON.stringify(arr));
+  DP_FRASES = arr; dpFraseIdx = 0;
+  var st = document.getElementById('dpFrasesStatus');
+  st.style.color='#4ade80'; st.textContent='✅ '+arr.length+' frases salvas!';
+  setTimeout(function(){ st.textContent=''; }, 3000);
+}
+
+function dpResetarFrases() {
+  localStorage.removeItem('dp_frases');
+  DP_FRASES = [
+    'Opere com método — nunca com emoção',
+    'Paciência é a arma do operador profissional',
+    'Siga o plano — ignore o ruído',
+    'Um passo de cada vez — consistência vence',
+    'Controle a banca — controle o jogo',
+    'Análise antes da ação — sempre',
+    'O profissional espera — o amador reage',
+    'Respeite a meta — ela existe por uma razão',
+    'Foco total — zero distrações',
+    'Cada sessão é uma oportunidade de aprender',
+    'Number One — opere no mais alto nível',
+    'Gestão de banca é mais importante que o acerto',
+    'Se não está no plano — não entra',
+    'Disciplina hoje — liberdade amanhã',
+    'Não opere com o ego — opere com o método',
+  ];
+  document.getElementById('dpFrasesInput').value = DP_FRASES.join('\n');
+  dpFraseIdx = 0;
+  var st = document.getElementById('dpFrasesStatus');
+  st.style.color='#f0a500'; st.textContent='↺ Frases padrão restauradas';
+  setTimeout(function(){ st.textContent=''; }, 3000);
 }
 
 function carregarConfigProxy() {
@@ -5534,14 +5727,21 @@ function dpAtualizarStatusWS(ok) {
 
 function abrirDisplay() {
   dpAberto = true;
+  // Carrega frases salvas
+  DP_FRASES = dpCarregarFrasesLocal();
+  dpFraseIdx = 0;
   var p = document.getElementById('displayPanel');
   p.style.display = 'flex';
   if(p.requestFullscreen) p.requestFullscreen();
   else if(p.webkitRequestFullscreen) p.webkitRequestFullscreen();
-  dpAtualizarTudo();
+  // Imagem e opacidade
+  dpCarregarImagemSalva();
+  var op = localStorage.getItem('dp_bg_opacity') || '35';
+  var bg = document.getElementById('dpBgImg');
+  if(bg) bg.style.opacity = op / 100;
   dpHoraTimer = setInterval(dpAtualizarHora, 1000);
-  // Conecta WebSocket pro celular receber eventos do PC
   dpConectarWS();
+  dpIniciarFrases();
   if('wakeLock' in navigator) {
     navigator.wakeLock.request('screen').catch(function(){});
   }
@@ -5549,6 +5749,8 @@ function abrirDisplay() {
 
 function fecharDisplay() {
   dpAberto = false;
+  dpPararFrases();
+  clearTimeout(dpStats4sTmr);
   document.getElementById('displayPanel').style.display = 'none';
   clearInterval(dpHoraTimer);
   clearTimeout(dpWsReconect);
@@ -5633,35 +5835,158 @@ function dpFlashPedra(valor, wsData) {
   if(!dpAberto) return;
   var c = dpCorPedra(valor);
 
+  // Para frases e stats
+  dpPararFrases();
+  clearTimeout(dpStats4sTmr);
+  document.getElementById('dpStats4s').style.display = 'none';
+
+  // Monta flash
   document.getElementById('dpFlashNum').textContent   = valor;
   document.getElementById('dpFlashNum').style.color   = c.bg === '#e5e5e5' ? '#fff' : c.bg;
   document.getElementById('dpFlashLabel').textContent = c.label;
   document.getElementById('dpFlashLabel').style.color = c.bg === '#e5e5e5' ? '#fff' : c.bg;
 
-  // Distância — usa dados do WS se disponível
   var distAtual = wsData ? wsData.dist_atual : 0;
-  if(!distAtual) {
-    var br = [];
-    for(var i=0;i<cells.length;i++) if(cells[i]===0) br.push(i);
-    distAtual = br.length > 1 ? br[br.length-1]-br[br.length-2]-1 : '';
+  if(!distAtual){
+    var br=[];for(var i=0;i<cells.length;i++)if(cells[i]===0)br.push(i);
+    distAtual = br.length>1 ? br[br.length-1]-br[br.length-2]-1 : '';
   }
-  document.getElementById('dpFlashDist').textContent = valor===0 && distAtual ? 'DIST: ' + distAtual : '';
+  document.getElementById('dpFlashDist').textContent = valor===0 && distAtual ? 'DIST: '+distAtual : '';
 
-  // Fundo colorido
+  // Fundo colorido no flash
   document.getElementById('displayPanel').style.background = c.bg === '#e5e5e5' ? '#888' : c.bg;
   document.getElementById('dpFlash').style.display = 'flex';
-  document.getElementById('dpIdle').style.display  = 'none';
 
   clearTimeout(dpFlashTimer);
   dpFlashTimer = setTimeout(function(){
     document.getElementById('dpFlash').style.display = 'none';
-    document.getElementById('dpIdle').style.display  = 'flex';
     document.getElementById('displayPanel').style.background = '#000';
-    dpAtualizarTudo();
+    // Mostra stats por 4 segundos depois vai pras frases
+    dpMostrarStats4s(valor, wsData);
   }, 1000);
 }
 
 // ===== FIM DISPLAY CELULAR =====
+
+// ===== FRASES MOTIVACIONAIS DO DISPLAY =====
+var DP_FRASES = [
+  'DISCIPLINE IS THE BRIDGE BETWEEN GOALS AND ACHIEVEMENT',
+  'OPERE COM MÉTODO — NUNCA COM EMOÇÃO',
+  'PACIÊNCIA É A ARMA DO OPERADOR PROFISSIONAL',
+  'SIGA O PLANO — IGNORE O RUÍDO',
+  'UM PASSO DE CADA VEZ — CONSISTÊNCIA VENCE',
+  'CONTROLE A BANCA — CONTROLE O JOGO',
+  'ANÁLISE ANTES DA AÇÃO — SEMPRE',
+  'O PROFISSIONAL ESPERA — O AMADOR REAGE',
+  'RESPEITE A META — ELA EXISTE POR UMA RAZÃO',
+  'FOCO TOTAL — ZERO DISTRAÇÕES',
+  'CADA SESSÃO É UMA OPORTUNIDADE DE APRENDER',
+  'NÚMERO ONE — OPERE NO MAIS ALTO NÍVEL',
+  'GESTÃO DE BANCA É MAIS IMPORTANTE QUE O ACERTO',
+  'SE NÃO ESTÁ NO PLANO — NÃO ENTRA',
+  'DISCIPLINA HOJE — LIBERDADE AMANHÃ',
+];
+
+var dpFraseIdx    = 0;
+var dpFraseTmr    = null;
+var dpStats4sTmr  = null;
+var dpFrasesAtivo = false;
+
+function dpIniciarFrases() {
+  dpFrasesAtivo = true;
+  document.getElementById('dpFrases').style.display = 'flex';
+  document.getElementById('dpStats4s').style.display = 'none';
+  dpProximaFrase();
+}
+
+function dpProximaFrase() {
+  if(!dpFrasesAtivo || !dpAberto) return;
+  var ticker = document.getElementById('dpFraseTicker');
+  if(!ticker) return;
+
+  var frase = DP_FRASES[dpFraseIdx % DP_FRASES.length];
+  dpFraseIdx++;
+
+  // Reinicia animação
+  ticker.style.animation = 'none';
+  ticker.textContent = '✦  ' + frase + '  ✦';
+  ticker.offsetHeight; // force reflow
+  ticker.style.animation = 'dpSlide 12s linear forwards';
+
+  // Próxima frase após 12s
+  clearTimeout(dpFraseTmr);
+  dpFraseTmr = setTimeout(dpProximaFrase, 12000);
+}
+
+function dpPararFrases() {
+  dpFrasesAtivo = false;
+  clearTimeout(dpFraseTmr);
+  document.getElementById('dpFrases').style.display = 'none';
+}
+
+function dpMostrarStats4s(valor, wsData) {
+  // Mostra painel de stats por 4 segundos após o flash
+  var c = dpCorPedra(valor);
+  var bola = document.getElementById('dpS4Bola');
+  bola.textContent = valor;
+  bola.style.background = c.bg;
+  bola.style.color = c.text;
+  bola.style.boxShadow = '0 0 30px ' + (c.bg === '#e5e5e5' ? 'rgba(255,255,255,.5)' : c.bg);
+
+  document.getElementById('dpS4Label').textContent = c.label;
+  document.getElementById('dpS4Label').style.color = c.bg === '#e5e5e5' ? '#ccc' : c.bg;
+
+  var distAtual = wsData ? wsData.dist_atual : 0;
+  if(!distAtual){
+    var br=[];for(var i=0;i<cells.length;i++)if(cells[i]===0)br.push(i);
+    distAtual = br.length>0 ? cells.length-br[br.length-1]-1 : cells.length;
+  }
+  document.getElementById('dpS4Dist').textContent   = 'DIST: ' + distAtual;
+  document.getElementById('dpS4Pedras').textContent  = cells.length;
+  document.getElementById('dpS4Brancos').textContent = cells.filter(function(v){return v===0;}).length;
+  document.getElementById('dpS4DistAt').textContent  = distAtual;
+
+  document.getElementById('dpStats4s').style.display = 'flex';
+  document.getElementById('dpFrases').style.display  = 'none';
+  document.getElementById('displayPanel').style.background = '#000';
+
+  clearTimeout(dpStats4sTmr);
+  dpStats4sTmr = setTimeout(function(){
+    document.getElementById('dpStats4s').style.display = 'none';
+    dpIniciarFrases();
+  }, 4000);
+}
+
+// Imagem de fundo
+function dpConfigurarImagem() {
+  document.getElementById('dpImgInput').click();
+}
+
+function dpCarregarImagem(input) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var url = e.target.result;
+    localStorage.setItem('dp_bg_img', url);
+    dpAplicarImagem(url);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function dpAplicarImagem(url) {
+  var bg = document.getElementById('dpBgImg');
+  if(bg && url) {
+    bg.style.backgroundImage = 'url(' + url + ')';
+  }
+}
+
+// Carrega imagem salva ao abrir o display
+function dpCarregarImagemSalva() {
+  var url = localStorage.getItem('dp_bg_img');
+  if(url) dpAplicarImagem(url);
+}
+
+// ===== FIM FRASES =====
 var cadernoSessaoInicio = null;
 
 function salvarCaderno() {
