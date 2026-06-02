@@ -88,7 +88,7 @@ input[type=range]{width:100px;accent-color:var(--gold);cursor:pointer}
 .btn-add{background:var(--gold);color:#000;font-weight:700;padding:7px 16px}
 .btn-ok{background:#166534;color:#fff;padding:6px 12px}
 
-.sheet-scroll{overflow:auto;max-height:calc(100vh - 280px);min-width:0}
+.sheet-scroll{overflow:auto;min-height:120px;min-width:0}
 .sheet-scroll::-webkit-scrollbar{width:5px;height:5px}
 .sheet-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .dist-faixa-scroll::-webkit-scrollbar{height:2px}
@@ -385,7 +385,7 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
 @media(max-width:900px){
   .banner{height:110px}
   .bcont h2{font-size:1.1rem}
-  .sheet-scroll{max-height:calc(100vh - 240px)}
+  .sheet-scroll{min-height:120px}
   .main{padding:7px;gap:7px}
 }
 </style>
@@ -412,22 +412,22 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
     </div>
     <div class="ni">🧠 Técnicas ▾
       <div class="dd">
-        <a href="#" onclick="abrirSalaZen();return false"><strong>Sala Zen</strong><span>Recalibração mental e foco</span></a>
+        <a href="#" onclick="abrirModoMenu('zen');return false"><strong>Sala Zen</strong><span>Recalibração mental e foco</span></a>
         <a href="#"><strong>Padrões Pré-Salvos</strong><span>Gerenciar e detectar padrões</span></a>
-        <a href="#" onclick="abrirEstrategias();return false"><strong>Estratégias de Operação</strong><span>Documente suas técnicas</span></a>
+        <a href="#" onclick="abrirModoMenu('estrategias');return false"><strong>Estratégias de Operação</strong><span>Documente suas técnicas</span></a>
         <a href="#"><strong>Estado Emocional</strong><span>Registre suas emoções</span></a>
         <a href="#"><strong>Treino - Vício - Disciplina</strong><span>Anote insights</span></a>
       </div>
     </div>
     <div class="ni">💼 Contabilidade ▾
       <div class="dd">
-        <a href="#" onclick="abrirContabilidade('perfis');return false"><strong>Perfis Financeiros</strong><span>Controle de caixa por perfil</span></a>
-        <a href="#" onclick="abrirContabilidade('despesas');return false"><strong>Gestão de Despesas</strong><span>Gerenciar despesas</span></a>
-        <a href="#" onclick="abrirContabilidade('porcent');return false"><strong>Gerenciador de Porcentagem</strong><span>Calcular repasse</span></a>
-        <a href="#" onclick="abrirContabilidade('metas');return false"><strong>Criar Metas</strong><span>Defina metas de lucro</span></a>
+        <a href="#" onclick="abrirModoMenu('contabilidade');return false"><strong>Perfis Financeiros</strong><span>Controle de caixa por perfil</span></a>
+        <a href="#" onclick="abrirModoMenu('contabilidade');return false"><strong>Gestão de Despesas</strong><span>Gerenciar despesas</span></a>
+        <a href="#" onclick="abrirModoMenu('contabilidade');return false"><strong>Gerenciador de Porcentagem</strong><span>Calcular repasse</span></a>
+        <a href="#" onclick="abrirModoMenu('contabilidade');return false"><strong>Criar Metas</strong><span>Defina metas de lucro</span></a>
       </div>
     </div>
-    <div class="ni">📈 Evolução ▾<div class="dd"><a href="#" onclick="abrirEvolucao();return false"><strong>Ranking de Operações</strong><span>Ranking por lucro obtido</span></a></div></div>
+    <div class="ni">📈 Evolução ▾<div class="dd"><a href="#" onclick="abrirModoMenu('evolucao');return false"><strong>Ranking de Operações</strong><span>Ranking por lucro obtido</span></a></div></div>
     <div class="ni">⚙️ Admin ▾
       <div class="dd">
         <a href="#" onclick="abrirAdmin('banners');return false"><strong>Gerenciar Banners</strong><span>Adicione imagens ao slider</span></a>
@@ -458,7 +458,115 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
       letter-spacing:1px">APOSTA</span>
   </div>
   <div class="nav-av">J</div>
+  <!-- BOTAO DISPLAY CELULAR -->
+  <div onclick="abrirDisplay()" title="Display para celular — tela cheia"
+    style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:3px 9px;
+    border-radius:6px;border:1px solid var(--border);transition:.2s;flex-shrink:0;margin-left:4px"
+    onmouseover="this.style.borderColor='#a855f7'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:.8rem">📱</span>
+    <span style="font-size:.6rem;color:var(--muted);font-family:var(--fhead);letter-spacing:1px">DISPLAY</span>
+  </div>
 </nav>
+
+<!-- DISPLAY CELULAR FULLSCREEN -->
+<div id="displayPanel" style="display:none;position:fixed;inset:0;z-index:9999;
+  background:#000;flex-direction:column;overflow:hidden;user-select:none">
+
+  <!-- Botão fechar -->
+  <button onclick="fecharDisplay()"
+    style="position:absolute;top:12px;right:12px;z-index:10;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:6px 14px;
+    cursor:pointer;font-size:.75rem;font-family:var(--fhead);letter-spacing:1px">
+    ✕ FECHAR
+  </button>
+
+  <!-- FLASH DE PEDRA (aparece 1s quando entra pedra nova) -->
+  <div id="dpFlash" style="display:none;position:absolute;inset:0;z-index:5;
+    align-items:center;justify-content:center;flex-direction:column;gap:8px">
+    <div id="dpFlashNum" style="font-family:var(--fmono);font-size:30vw;font-weight:900;
+      line-height:1;text-shadow:0 0 60px currentColor"></div>
+    <div id="dpFlashLabel" style="font-family:var(--fhead);font-size:6vw;letter-spacing:4px;
+      opacity:.8"></div>
+    <div id="dpFlashDist" style="font-family:var(--fmono);font-size:4vw;opacity:.6;margin-top:8px"></div>
+  </div>
+
+  <!-- PAINEL IDLE — stats rolando -->
+  <div id="dpIdle" style="display:flex;flex-direction:column;height:100%;padding:16px 12px;gap:10px">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;
+      border-bottom:1px solid rgba(255,255,255,.1)">
+      <div style="font-family:var(--fhead);font-size:4vw;color:#f0a500;letter-spacing:3px;font-weight:700">
+        NUMBER ONE
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="dpStatusWS" style="font-size:2.5vw;color:rgba(255,255,255,.3);font-family:var(--fhead)">○ LOCAL</span>
+        <div id="dpHora" style="font-family:var(--fmono);font-size:3.5vw;color:rgba(255,255,255,.4)"></div>
+      </div>
+    </div>
+
+    <!-- Última pedra grande -->
+    <div style="display:flex;align-items:center;gap:16px;padding:10px 0">
+      <div id="dpUltBola" style="width:16vw;height:16vw;border-radius:50%;display:flex;
+        align-items:center;justify-content:center;font-family:var(--fmono);
+        font-size:7vw;font-weight:900;flex-shrink:0;transition:.3s;background:#333"></div>
+      <div style="flex:1">
+        <div style="font-size:3vw;color:rgba(255,255,255,.4);font-family:var(--fhead);
+          letter-spacing:2px;margin-bottom:4px">ÚLTIMA PEDRA</div>
+        <div id="dpUltLabel" style="font-size:5vw;font-family:var(--fhead);
+          letter-spacing:2px;color:#fff"></div>
+        <div id="dpUltDist" style="font-size:3.5vw;font-family:var(--fmono);
+          color:rgba(255,255,255,.4);margin-top:2px"></div>
+      </div>
+    </div>
+
+    <!-- Distâncias -->
+    <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px">
+      <div style="font-size:2.8vw;color:rgba(255,255,255,.3);font-family:var(--fhead);
+        letter-spacing:2px;margin-bottom:6px">DISTÂNCIAS</div>
+      <div id="dpDists" style="font-family:var(--fmono);font-size:4.5vw;color:#f0a500;
+        word-break:break-all;line-height:1.8"></div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.3);font-family:var(--fhead);
+          letter-spacing:1px;margin-bottom:4px">PEDRAS</div>
+        <div id="dpTotalPedras" style="font-family:var(--fmono);font-size:6vw;
+          color:#fff;font-weight:700">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.3);font-family:var(--fhead);
+          letter-spacing:1px;margin-bottom:4px">BRANCOS</div>
+        <div id="dpBrancos" style="font-family:var(--fmono);font-size:6vw;
+          color:#d4d4d8;font-weight:700">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:2.5vw;color:rgba(255,255,255,.3);font-family:var(--fhead);
+          letter-spacing:1px;margin-bottom:4px">RESULTADO</div>
+        <div id="dpResultado" style="font-family:var(--fmono);font-size:5vw;font-weight:700">—</div>
+      </div>
+    </div>
+
+    <!-- Últimas pedras como bolinhas -->
+    <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;flex:1">
+      <div style="font-size:2.8vw;color:rgba(255,255,255,.3);font-family:var(--fhead);
+        letter-spacing:2px;margin-bottom:8px">ÚLTIMAS RODADAS</div>
+      <div id="dpBolinhas" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+
+    <!-- Ticker de distância atual -->
+    <div style="border-top:1px solid rgba(255,255,255,.1);padding-top:8px;
+      display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:2.8vw;color:rgba(255,255,255,.3);font-family:var(--fhead);letter-spacing:2px">
+        DIST ATUAL
+      </div>
+      <div id="dpDistAtual" style="font-family:var(--fmono);font-size:5vw;color:#f0a500;font-weight:700">—</div>
+    </div>
+
+  </div>
+</div>
 
 <!-- RADIO PLAYER -->
 <div id="radioBar" style="background:#0a0a18;border-bottom:1px solid var(--border);
@@ -518,6 +626,7 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
   <button onclick="setBannerMode('banner')" id="btnModoBanner" style="padding:3px 10px;border-radius:6px;border:1px solid var(--gold);background:var(--gold);color:#000;font-size:.63rem;font-weight:700;cursor:pointer;font-family:var(--fhead);letter-spacing:1px;transition:.15s">🖼️ BANNER</button>
   <button onclick="setBannerMode('janelas')" id="btnModoJanelas" style="padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:.63rem;font-weight:700;cursor:pointer;font-family:var(--fhead);letter-spacing:1px;transition:.15s">🪟 JANELAS</button>
   <button onclick="setBannerMode('ferramentas')" id="btnModoFerr" style="padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:.63rem;font-weight:700;cursor:pointer;font-family:var(--fhead);letter-spacing:1px;transition:.15s">🔍 PADRÕES</button>
+  <button onclick="setBannerMode('anotacoes')" id="btnModoAnot" style="padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-size:.63rem;font-weight:700;cursor:pointer;font-family:var(--fhead);letter-spacing:1px;transition:.15s">📓 ANOTAÇÕES</button>
 </div>
 
 <!-- POPUP CONFIG RÁDIO -->
@@ -816,7 +925,98 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
 
   </div><!-- fim modoFerramentas -->
 
-</div>
+  <!-- MODO ANOTAÇÕES -->
+  <div id="modoAnotacoes" style="display:none;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px">
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:12px;max-height:280px">
+
+      <!-- CADERNO -->
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-family:var(--fhead);font-size:.72rem;color:var(--gold);letter-spacing:1px">📓 CADERNO DA SESSÃO</span>
+          <div style="display:flex;gap:5px">
+            <button onclick="limparCaderno()" class="btn"
+              style="font-size:.62rem;padding:2px 8px;background:var(--bg2);color:var(--muted)">
+              🗑 Limpar
+            </button>
+            <button onclick="exportarSessaoXLSX()" class="btn"
+              style="font-size:.62rem;padding:2px 8px;background:#0d2a0d;color:#4ade80;border-color:#22c55e">
+              📥 Salvar Sessão (.xlsx)
+            </button>
+          </div>
+        </div>
+        <textarea id="cadernoPrincipal"
+          placeholder="Anote aqui suas observações durante a operação...&#10;&#10;Ex:&#10;- Padrão X aparecendo a cada 8 pedras&#10;- Entrada na distância 14, acertou&#10;- Horário de pico: 01h às 03h"
+          style="flex:1;min-height:200px;background:var(--bg2);border:1px solid var(--border);
+          border-radius:8px;color:var(--text);font-size:.8rem;padding:10px;
+          resize:none;outline:none;font-family:var(--fmono);line-height:1.6"
+          oninput="salvarCaderno()"></textarea>
+      </div>
+
+      <!-- RESUMO DA SESSÃO -->
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:var(--fhead);font-size:.72rem;color:var(--gold);letter-spacing:1px">📊 RESUMO DA SESSÃO</span>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+          padding:10px;display:flex;flex-direction:column;gap:8px;flex:1">
+
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;border-bottom:1px solid var(--border);padding-bottom:7px">
+            <span style="color:var(--muted)">Data</span>
+            <span id="anotData" style="color:var(--text);font-family:var(--fmono)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Tempo</span>
+            <span id="anotTempo" style="color:var(--text);font-family:var(--fmono)">00:00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Banca inicial</span>
+            <span id="anotBanca" style="color:var(--text);font-family:var(--fmono)">R$ —</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Meta</span>
+            <span id="anotMeta" style="color:var(--text);font-family:var(--fmono)">R$ —</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Resultado</span>
+            <span id="anotResultado" style="font-family:var(--fmono);font-weight:700">R$ —</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Pedras registradas</span>
+            <span id="anotPedras" style="color:var(--text);font-family:var(--fmono)">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem">
+            <span style="color:var(--muted)">Brancos</span>
+            <span id="anotBrancos" style="color:var(--text);font-family:var(--fmono)">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;border-top:1px solid var(--border);padding-top:7px">
+            <span style="color:var(--muted)">Plataforma</span>
+            <span id="anotPlat" style="color:var(--text);font-family:var(--fhead);letter-spacing:1px">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- fim modoAnotacoes -->
+
+  <!-- MODO MENU — conteudo dos itens do menu aparece aqui -->
+  <div id="modoMenu" style="display:none;background:var(--bg);border-bottom:1px solid var(--border)">
+    <!-- Barra de titulo do painel -->
+    <div style="display:flex;align-items:center;padding:5px 12px;background:var(--bg2);
+      border-bottom:1px solid var(--border);gap:10px">
+      <span id="modoMenuTitulo" style="font-family:var(--fhead);font-size:.78rem;
+        color:var(--gold);letter-spacing:1px;flex:1"></span>
+      <button onclick="fecharModoMenu()" 
+        style="background:transparent;border:1px solid var(--border);color:var(--muted);
+        border-radius:6px;padding:2px 10px;cursor:pointer;font-size:.7rem;
+        font-family:var(--fhead);letter-spacing:1px;transition:.15s"
+        onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        ✕ FECHAR
+      </button>
+    </div>
+    <!-- Conteudo injetado aqui -->
+    <div id="modoMenuConteudo" style="padding:14px 16px;max-height:420px;overflow-y:auto"></div>
+  </div><!-- fim modoMenu -->
+
+</div><!-- fim container modos -->
 
 <!-- MAIN -->
 <div class="main">
@@ -901,11 +1101,11 @@ table.aux td.bp{background:#1a2a1a;color:#86efac;border-color:#1a3a1a}
     padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.15s"
     onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="font-size:1.1rem;flex-shrink:0">💬</div>
-    <div style="flex:1;min-width:0" onclick="abrirChat()">
+    <div style="flex:1;min-width:0" onclick="abrirModoMenu('chat')">
       <div id="chatUltimaNome" style="font-size:.7rem;color:var(--accent2);font-family:var(--fhead);letter-spacing:1px">CHAT — NUMBER ONE</div>
       <div id="chatUltimaMsg" style="font-size:.82rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nenhuma mensagem ainda... seja o primeiro!</div>
     </div>
-    <button onclick="abrirChat()" style="background:var(--accent);color:#fff;border:none;border-radius:7px;
+    <button onclick="abrirModoMenu('chat')" style="background:var(--accent);color:#fff;border:none;border-radius:7px;
       padding:6px 14px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:var(--fmain);flex-shrink:0;transition:.15s">ABRIR</button>
   </div>
 
@@ -2031,6 +2231,7 @@ function addNum(n){
   render();upDist();upStats();setPill(`<b>${cells.length}</b> pedras`);saveState();
   // Notifica sistema LED
   ledNotificarPedra(v);
+  dpFlashPedra(v);
   // Verifica se a célula recém preenchida tinha marcação amarela (alerta)
   verificarAlertaMarcacao(cells.length-1);
 }
@@ -3695,15 +3896,18 @@ function setBannerMode(mode) {
   document.getElementById('modoBanner').style.display      = mode==='banner'       ? 'block' : 'none';
   document.getElementById('modoJanelas').style.display     = mode==='janelas'      ? 'grid'  : 'none';
   document.getElementById('modoFerramentas').style.display = mode==='ferramentas'  ? 'grid'  : 'none';
+  document.getElementById('modoAnotacoes').style.display   = mode==='anotacoes'    ? 'block' : 'none';
+  document.getElementById('modoMenu').style.display        = mode==='menu'         ? 'block' : 'none';
 
   const btns = {
-    'banner':      ['btnModoBanner',  'var(--gold)',   '#000',        'var(--gold)'],
-    'janelas':     ['btnModoJanelas', 'var(--accent)', '#fff',        'var(--accent)'],
-    'ferramentas': ['btnModoFerr',    '#0d9488',       '#fff',        '#0d9488'],
+    'banner':      ['btnModoBanner',  'var(--gold)',   '#000',   'var(--gold)'],
+    'janelas':     ['btnModoJanelas', 'var(--accent)', '#fff',   'var(--accent)'],
+    'ferramentas': ['btnModoFerr',    '#0d9488',       '#fff',   '#0d9488'],
+    'anotacoes':   ['btnModoAnot',    '#7c3aed',       '#fff',   '#7c3aed'],
   };
-  ['banner','janelas','ferramentas'].forEach(m => {
-    const id = btns[m][0];
-    const el = document.getElementById(id);
+  ['banner','janelas','ferramentas','anotacoes'].forEach(m => {
+    const id = btns[m] ? btns[m][0] : null;
+    const el = id ? document.getElementById(id) : null;
     if (!el) return;
     if (m === mode) {
       el.style.background  = btns[m][1];
@@ -3716,12 +3920,9 @@ function setBannerMode(mode) {
     }
   });
 
-  if (mode==='janelas') {
-    [1,2,3].forEach(n => { if(janelaLinks[n]) carregarJanela(n, janelaLinks[n]); });
-  }
-  if (mode==='ferramentas') {
-    atualizarAnalisador();
-  }
+  if (mode==='janelas')    { [1,2,3].forEach(n => { if(janelaLinks[n]) carregarJanela(n, janelaLinks[n]); }); }
+  if (mode==='ferramentas'){ atualizarAnalisador(); }
+  if (mode==='anotacoes')  { atualizarResumoAnotacoes(); }
 }
 
 function carregarJanela(n, url) {
@@ -4955,22 +5156,32 @@ var LED_CONECTADO = false;
 var LED_APOSTA_PENDENTE = false;
 var LED_RECONECT_TMR = null;
 
+function ledGetWsUrl() {
+  // Pega host do proxy configurado e troca porta pra 8766
+  var base = localStorage.getItem('cfg_proxy_url') || 'http://localhost:8765';
+  var host = base.replace(/^https?:\/\//, '').split(':')[0];
+  var proto = base.startsWith('https') ? 'wss' : 'ws';
+  return proto + '://' + host + ':8766';
+}
+
 function ledConectar() {
   if (LED_WS && LED_WS.readyState === 1) return;
   try {
-    LED_WS = new WebSocket('ws://localhost:8766');
+    var wsUrl = ledGetWsUrl();
+    LED_WS = new WebSocket(wsUrl);
 
     LED_WS.onopen = function() {
       LED_CONECTADO = true;
       clearTimeout(LED_RECONECT_TMR);
       ledAtualizarUI(true);
-      console.log('[LED] Conectado ao led_controller.py');
+      // Identifica como fonte (PC operando)
+      LED_WS.send(JSON.stringify({tipo:'identificar', role:'fonte'}));
+      console.log('[LED] Conectado: ' + wsUrl);
     };
 
     LED_WS.onclose = function() {
       LED_CONECTADO = false;
       ledAtualizarUI(false);
-      // Tenta reconectar a cada 5 segundos silenciosamente
       LED_RECONECT_TMR = setTimeout(ledConectar, 5000);
     };
 
@@ -5008,9 +5219,26 @@ function ledAtualizarUI(conectado) {
 }
 
 function ledNotificarPedra(valor) {
-  // Chamado sempre que uma pedra e inserida (manual ou auto)
-  ledEnviar({ tipo: 'pedra', valor: valor });
-  // Limpa indicador de aposta apos pedra entrar
+  // Calcula distancias pra mandar pro display
+  var br = [];
+  for(var i=0;i<cells.length;i++) if(cells[i]===0) br.push(i);
+  var dists = [];
+  for(var j=1;j<br.length;j++) dists.push(br[j]-br[j-1]-1);
+  var distAtual = br.length > 0 ? cells.length - br[br.length-1] - 1 : cells.length;
+  var brancos = cells.filter(function(v){return v===0;}).length;
+
+  ledEnviar({
+    tipo:       'pedra',
+    valor:      valor,
+    cells_len:  cells.length,
+    dists:      dists,
+    dist_atual: distAtual,
+    sRes:       sRes || 0,
+    brancos:    brancos,
+    // Ultimas 20 pedras pro display atualizar bolinhas
+    ultimas:    cells.slice(-20)
+  });
+
   if (LED_APOSTA_PENDENTE) {
     LED_APOSTA_PENDENTE = false;
     ledAtualizarAposta(false);
@@ -5183,6 +5411,417 @@ function confirmarColar() {
 }
 
 // ===== FIM COLAR HISTORICO =====
+
+// ===== MODO MENU =====
+var modoMenuAnterior = 'banner';
+var modoMenuAtual = null;
+var modoMenuOrigem = null; // elemento pai original do conteudo
+
+var MENU_CONFIG = {
+  'contabilidade': { titulo: '💰 CONTABILIDADE', popId: 'popContabil'    },
+  'evolucao':      { titulo: '📈 RANKING',        popId: 'popEvolucao'   },
+  'zen':           { titulo: '🧘 SALA ZEN',        popId: 'popZen'        },
+  'estrategias':   { titulo: '📐 ESTRATÉGIAS',    popId: 'popEstrategias'},
+  'chat':          { titulo: '💬 CHAT',            popId: 'popChat'       },
+};
+
+function abrirModoMenu(key) {
+  var cfg = MENU_CONFIG[key];
+  if(!cfg) return;
+
+  // Se ja tem algo aberto, devolve primeiro sem animar
+  if(modoMenuOrigem) {
+    _devolverInner();
+  }
+
+  // Salva modo anterior
+  modoMenuAnterior = bannerMode !== 'menu' ? bannerMode : modoMenuAnterior;
+  modoMenuAtual = key;
+
+  var popEl = document.getElementById(cfg.popId);
+  if(!popEl) return;
+  var inner = popEl.querySelector('.pop') || popEl.firstElementChild;
+  if(!inner) return;
+
+  // Guarda referencia
+  modoMenuOrigem = { popId: cfg.popId, inner: inner };
+
+  // Move pro painel
+  var conteudo = document.getElementById('modoMenuConteudo');
+  conteudo.appendChild(inner);
+
+  // Ajusta estilos pra caber no painel inline
+  inner.style.maxHeight = 'none';
+  inner.style.overflow  = 'visible';
+  inner.style.width     = '100%';
+  inner.style.boxShadow = 'none';
+  inner.style.borderRadius = '0';
+
+  document.getElementById('modoMenuTitulo').textContent = cfg.titulo;
+  setBannerMode('menu');
+
+  // Inicializacoes
+  if(key === 'contabilidade') { renderPerfis && renderPerfis(); renderDespesas && renderDespesas(); }
+  if(key === 'evolucao')      { renderRanking && renderRanking(); }
+  if(key === 'zen')           { renderZenLobby && renderZenLobby(); }
+  if(key === 'estrategias')   { renderEstrategias && renderEstrategias(); }
+  if(key === 'chat')          { renderChatMsgs && renderChatMsgs(); setTimeout(function(){ var c=document.getElementById('chatMsgs');if(c)c.scrollTop=c.scrollHeight;},100); }
+}
+
+function _devolverInner() {
+  if(!modoMenuOrigem) return;
+  var popEl = document.getElementById(modoMenuOrigem.popId);
+  var inner = modoMenuOrigem.inner;
+  if(popEl && inner && inner.parentNode) {
+    // Restaura estilos
+    inner.style.maxHeight  = '';
+    inner.style.overflow   = '';
+    inner.style.width      = '';
+    inner.style.boxShadow  = '';
+    inner.style.borderRadius = '';
+    popEl.appendChild(inner);
+  }
+  modoMenuOrigem = null;
+  modoMenuAtual  = null;
+}
+
+function fecharModoMenu() {
+  _devolverInner();
+  setBannerMode(modoMenuAnterior);
+}
+
+// ===== FIM MODO MENU =====
+
+// ===== DISPLAY CELULAR =====
+var dpAberto = false;
+var dpFlashTimer = null;
+var dpHoraTimer  = null;
+var dpWS         = null;
+var dpWsReconect = null;
+
+function dpConectarWS() {
+  // Conecta no led_controller como display
+  var base = localStorage.getItem('cfg_proxy_url') || 'http://localhost:8765';
+  var host = base.replace(/^https?:\/\//, '').split(':')[0];
+  var proto = base.startsWith('https') ? 'wss' : 'ws';
+  var url = proto + '://' + host + ':8766';
+  try {
+    dpWS = new WebSocket(url);
+    dpWS.onopen = function() {
+      clearTimeout(dpWsReconect);
+      dpWS.send(JSON.stringify({tipo:'identificar', role:'display'}));
+      console.log('[DISPLAY] Conectado ao LED controller');
+      dpAtualizarStatusWS(true);
+    };
+    dpWS.onmessage = function(e) {
+      try {
+        var d = JSON.parse(e.data);
+        if(d.tipo === 'pedra') {
+          // Atualiza dados recebidos do PC
+          if(d.ultimas)    cells = d.ultimas; // sincroniza ultimas pedras
+          if(d.sRes !== undefined) sRes = d.sRes;
+          dpFlashPedra(d.valor, d);
+        } else if(d.tipo === 'aposta') {
+          // Mostra indicador de aposta no display
+          var el = document.getElementById('dpDistAtual');
+          if(el){ el.textContent = '★ APOSTADO'; el.style.color = '#f0a500'; }
+          setTimeout(function(){
+            if(el){ el.style.color = '#f0a500'; }
+          }, 500);
+        }
+      } catch(err){}
+    };
+    dpWS.onclose = function() {
+      dpAtualizarStatusWS(false);
+      if(dpAberto) dpWsReconect = setTimeout(dpConectarWS, 4000);
+    };
+    dpWS.onerror = function() { dpAtualizarStatusWS(false); };
+  } catch(e) {
+    console.log('[DISPLAY] WS erro:', e);
+  }
+}
+
+function dpAtualizarStatusWS(ok) {
+  var el = document.getElementById('dpStatusWS');
+  if(!el) return;
+  el.textContent = ok ? '● AO VIVO' : '○ LOCAL';
+  el.style.color  = ok ? '#4ade80' : 'rgba(255,255,255,.3)';
+}
+
+function abrirDisplay() {
+  dpAberto = true;
+  var p = document.getElementById('displayPanel');
+  p.style.display = 'flex';
+  if(p.requestFullscreen) p.requestFullscreen();
+  else if(p.webkitRequestFullscreen) p.webkitRequestFullscreen();
+  dpAtualizarTudo();
+  dpHoraTimer = setInterval(dpAtualizarHora, 1000);
+  // Conecta WebSocket pro celular receber eventos do PC
+  dpConectarWS();
+  if('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(function(){});
+  }
+}
+
+function fecharDisplay() {
+  dpAberto = false;
+  document.getElementById('displayPanel').style.display = 'none';
+  clearInterval(dpHoraTimer);
+  clearTimeout(dpWsReconect);
+  if(dpWS) { dpWS.close(); dpWS = null; }
+  if(document.exitFullscreen) document.exitFullscreen().catch(function(){});
+}
+
+function dpAtualizarHora() {
+  var el = document.getElementById('dpHora');
+  if(el) el.textContent = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function dpCorPedra(v) {
+  if(v === 0) return { bg:'#e5e5e5', text:'#000', label:'BRANCO',   glow:'rgba(255,255,255,.6)' };
+  if(v <= 7)  return { bg:'#c0392b', text:'#fff', label:'VERMELHO', glow:'rgba(220,50,50,.7)'   };
+  return              { bg:'#1a3a6e', text:'#fff', label:'PRETO',   glow:'rgba(50,100,220,.7)'  };
+}
+
+function dpAtualizarTudo() {
+  if(!dpAberto) return;
+
+  // Ultima pedra
+  var ult = cells.length > 0 ? cells[cells.length-1] : null;
+  if(ult !== null) {
+    var c = dpCorPedra(ult);
+    var bola = document.getElementById('dpUltBola');
+    bola.textContent = ult;
+    bola.style.background = c.bg;
+    bola.style.color = c.text;
+    bola.style.boxShadow = '0 0 20px ' + c.glow;
+    document.getElementById('dpUltLabel').textContent = c.label;
+    document.getElementById('dpUltLabel').style.color = c.bg === '#e5e5e5' ? '#ccc' : c.bg;
+  }
+
+  // Distância atual (desde último branco)
+  var br = [];
+  for(var i=0;i<cells.length;i++) if(cells[i]===0) br.push(i);
+  var distAtual = br.length > 0 ? cells.length - br[br.length-1] - 1 : cells.length;
+  document.getElementById('dpDistAtual').textContent = distAtual;
+  document.getElementById('dpUltDist').textContent = br.length > 0 ? 'Dist atual: ' + distAtual : '';
+
+  // Distâncias históricas
+  var dists = [];
+  for(var j=1;j<br.length;j++) dists.push(br[j]-br[j-1]-1);
+  var distEl = document.getElementById('dpDists');
+  if(dists.length > 0) {
+    distEl.innerHTML = dists.map(function(d,i){
+      var isUlt = i===dists.length-1;
+      var style = isUlt ? 'color:#f0a500;font-weight:700' : 'color:rgba(255,255,255,.4)';
+      return '<span style="'+style+'">'+d+'</span>';
+    }).join('<span style="color:rgba(255,255,255,.2);padding:0 4px">›</span>');
+  } else {
+    distEl.textContent = '—';
+  }
+
+  // Stats
+  document.getElementById('dpTotalPedras').textContent = cells.length;
+  document.getElementById('dpBrancos').textContent = cells.filter(function(v){return v===0;}).length;
+  var resEl = document.getElementById('dpResultado');
+  if(sRes !== 0) {
+    resEl.textContent = (sRes>=0?'+':'') + 'R$' + Math.abs(sRes).toFixed(0);
+    resEl.style.color = sRes >= 0 ? '#4ade80' : '#f87171';
+  } else {
+    resEl.textContent = '—';
+    resEl.style.color = 'rgba(255,255,255,.3)';
+  }
+
+  // Bolinhas das últimas 20 pedras
+  var ultimas = cells.slice(-20);
+  var bolinhasEl = document.getElementById('dpBolinhas');
+  bolinhasEl.innerHTML = ultimas.map(function(v){
+    var c = dpCorPedra(v);
+    return '<div style="width:8vw;height:8vw;border-radius:50%;background:'+c.bg+
+      ';display:flex;align-items:center;justify-content:center;font-family:var(--fmono);'+
+      'font-size:3.5vw;color:'+c.text+';font-weight:700;flex-shrink:0">'+v+'</div>';
+  }).join('');
+
+  dpAtualizarHora();
+}
+
+function dpFlashPedra(valor, wsData) {
+  if(!dpAberto) return;
+  var c = dpCorPedra(valor);
+
+  document.getElementById('dpFlashNum').textContent   = valor;
+  document.getElementById('dpFlashNum').style.color   = c.bg === '#e5e5e5' ? '#fff' : c.bg;
+  document.getElementById('dpFlashLabel').textContent = c.label;
+  document.getElementById('dpFlashLabel').style.color = c.bg === '#e5e5e5' ? '#fff' : c.bg;
+
+  // Distância — usa dados do WS se disponível
+  var distAtual = wsData ? wsData.dist_atual : 0;
+  if(!distAtual) {
+    var br = [];
+    for(var i=0;i<cells.length;i++) if(cells[i]===0) br.push(i);
+    distAtual = br.length > 1 ? br[br.length-1]-br[br.length-2]-1 : '';
+  }
+  document.getElementById('dpFlashDist').textContent = valor===0 && distAtual ? 'DIST: ' + distAtual : '';
+
+  // Fundo colorido
+  document.getElementById('displayPanel').style.background = c.bg === '#e5e5e5' ? '#888' : c.bg;
+  document.getElementById('dpFlash').style.display = 'flex';
+  document.getElementById('dpIdle').style.display  = 'none';
+
+  clearTimeout(dpFlashTimer);
+  dpFlashTimer = setTimeout(function(){
+    document.getElementById('dpFlash').style.display = 'none';
+    document.getElementById('dpIdle').style.display  = 'flex';
+    document.getElementById('displayPanel').style.background = '#000';
+    dpAtualizarTudo();
+  }, 1000);
+}
+
+// ===== FIM DISPLAY CELULAR =====
+var cadernoSessaoInicio = null;
+
+function salvarCaderno() {
+  var txt = document.getElementById('cadernoPrincipal').value;
+  localStorage.setItem('no_caderno', txt);
+}
+
+function limparCaderno() {
+  if(!confirm('Limpar todas as anotações do caderno?')) return;
+  document.getElementById('cadernoPrincipal').value = '';
+  localStorage.removeItem('no_caderno');
+}
+
+function atualizarResumoAnotacoes() {
+  // Data atual
+  var agora = new Date();
+  var data = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('anotData').textContent = data;
+
+  // Tempo de sessao
+  var el = document.getElementById('timerSessao');
+  document.getElementById('anotTempo').textContent = el ? el.textContent : '00:00';
+
+  // Banca e meta
+  document.getElementById('anotBanca').textContent = sBanca > 0 ? 'R$ ' + sBanca.toFixed(2) : '—';
+  document.getElementById('anotMeta').textContent  = sMeta  > 0 ? 'R$ ' + sMeta.toFixed(2)  : '—';
+
+  // Resultado
+  var resEl = document.getElementById('anotResultado');
+  if(sRes !== 0) {
+    resEl.textContent = (sRes >= 0 ? '+' : '') + 'R$ ' + Math.abs(sRes).toFixed(2);
+    resEl.style.color = sRes >= 0 ? 'var(--green)' : 'var(--red2)';
+  } else {
+    resEl.textContent = 'R$ 0,00';
+    resEl.style.color = 'var(--muted)';
+  }
+
+  // Pedras e brancos
+  document.getElementById('anotPedras').textContent  = cells.length;
+  document.getElementById('anotBrancos').textContent = cells.filter(function(v){ return v===0; }).length;
+
+  // Plataforma
+  document.getElementById('anotPlat').textContent = (typeof plataformaAtual !== 'undefined' ? plataformaAtual.toUpperCase() : 'BLAZE');
+}
+
+function exportarSessaoXLSX() {
+  atualizarResumoAnotacoes();
+
+  var agora      = new Date();
+  var dataStr    = agora.toLocaleDateString('pt-BR');
+  var horaStr    = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  var nomeArq    = 'sessao_' + agora.toISOString().slice(0,10) + '_' + agora.toTimeString().slice(0,5).replace(':','-') + '.xlsx';
+  var anotacoes  = document.getElementById('cadernoPrincipal').value || '(sem anotações)';
+  var brancos    = cells.filter(function(v){ return v===0; }).length;
+  var vermelhos  = cells.filter(function(v){ return v>=1&&v<=7; }).length;
+  var pretos     = cells.filter(function(v){ return v>=8&&v<=14; }).length;
+  var tempo      = document.getElementById('timerSessao') ? document.getElementById('timerSessao').textContent : '—';
+
+  // Monta o workbook manualmente como XML (XLSX simples sem lib externa)
+  // Usa formato CSV-like como fallback funcional e universal
+  var linhas = [
+    ['NUMBER ONE — OPERATIONS', '', '', ''],
+    ['RELATÓRIO DE SESSÃO', '', '', ''],
+    ['', '', '', ''],
+    ['Data', dataStr, '', ''],
+    ['Hora de exportação', horaStr, '', ''],
+    ['Tempo de sessão', tempo, '', ''],
+    ['Plataforma', typeof plataformaAtual !== 'undefined' ? plataformaAtual.toUpperCase() : 'BLAZE', '', ''],
+    ['', '', '', ''],
+    ['FINANCEIRO', '', '', ''],
+    ['Banca inicial', sBanca > 0 ? sBanca : '—', '', ''],
+    ['Meta', sMeta > 0 ? sMeta : '—', '', ''],
+    ['Resultado', sRes, '', ''],
+    ['', '', '', ''],
+    ['ESTATÍSTICAS', '', '', ''],
+    ['Total de pedras', cells.length, '', ''],
+    ['Brancos', brancos, '', ''],
+    ['Vermelhos', vermelhos, '', ''],
+    ['Pretos', pretos, '', ''],
+    ['', '', '', ''],
+    ['ANOTAÇÕES DO CADERNO', '', '', ''],
+  ];
+
+  // Adiciona cada linha do caderno
+  anotacoes.split('\n').forEach(function(l) {
+    linhas.push([l, '', '', '']);
+  });
+
+  linhas.push(['', '', '', '']);
+  linhas.push(['PEDRAS DA SESSÃO — formato da planilha (' + nCols + ' colunas)', '', '', '']);
+
+  // Cabecalho de colunas
+  var cab = [];
+  for(var c = 1; c <= nCols; c++) cab.push('C' + c);
+  linhas.push(cab);
+
+  // Pedras no mesmo formato da planilha (nCols por linha)
+  for(var i = 0; i < cells.length; i += nCols) {
+    var row = cells.slice(i, i + nCols);
+    // Preenche celulas vazias da ultima linha
+    while(row.length < nCols) row.push('');
+    // Substitui 0 por 'B' (branco) pra ficar mais legivel no Excel
+    row = row.map(function(v){ return v === '' ? '' : (v === 0 ? 'B' : v); });
+    linhas.push(row);
+  }
+
+  // Gera CSV com separador ;
+  var csv = linhas.map(function(row) {
+    return row.map(function(cell) {
+      var s = String(cell == null ? '' : cell);
+      if(s.indexOf(';') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+        s = '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }).join(';');
+  }).join('\r\n');
+
+  // BOM UTF-8 para Excel abrir corretamente
+  var blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = nomeArq.replace('.xlsx', '.csv');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  mostrarNotif('📥 Sessão exportada com sucesso!');
+}
+
+// Carrega caderno salvo ao iniciar
+document.addEventListener('DOMContentLoaded', function() {
+  var txt = localStorage.getItem('no_caderno');
+  var el  = document.getElementById('cadernoPrincipal');
+  if(txt && el) el.value = txt;
+});
+
+// Atualiza resumo a cada 10s quando na aba anotacoes
+setInterval(function() {
+  if(bannerMode === 'anotacoes') atualizarResumoAnotacoes();
+}, 10000);
+
+// ===== FIM CADERNO =====
 </script>
 
 <!-- RODAPE -->
